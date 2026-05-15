@@ -21,3 +21,10 @@ python auto_exam.py
 ## 注意：
 需要先完成线上学习中的5个视频才可以进入正式考试。单个账号最多参与10次考试。
 
+## 在线题库搜索功能 (GitHub Pages)
+本项目已经添加了一个基于 Web 的在线题库搜索页面，你可以通过访问仓库对应的 GitHub Pages 链接来直接搜索和查找题目答案。
+- **页面文件**：`index.html` 被包含在仓库中。
+- **开启方式**：
+  在 GitHub 仓库中，进入 `Settings` -> `Pages`，将 `Source` 设置为 `Deploy from a branch`，Branch 选择 `main` (或 `master`) 的 `/ (root)` 目录，并点击 Save。
+  稍等几分钟后，直接访问 GitHub 为你生成的域名即可轻松搜索题库。
+

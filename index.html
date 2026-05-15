@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>金工实习在线题库搜索</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: #f5f7fa;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+        }
+        .search-container {
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: center;
+        }
+        #searchInput {
+            width: 100%;
+            max-width: 600px;
+            padding: 12px 20px;
+            font-size: 16px;
+            border: 2px solid #3498db;
+            border-radius: 25px;
+            outline: none;
+            transition: all 0.3s;
+        }
+        #searchInput:focus {
+            box-shadow: 0 0 8px rgba(52, 152, 219, 0.5);
+        }
+        .meta-info {
+            text-align: center;
+            color: #7f8c8d;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+        .question-card {
+            background: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            border-left: 5px solid #3498db;
+        }
+        .question-stem {
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+        .options-list {
+            list-style-type: none;
+            padding: 0;
+            margin: 0 0 15px 0;
+        }
+        .options-list li {
+            margin-bottom: 8px;
+            padding: 8px 12px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            border: 1px solid #e9ecef;
+        }
+        .answer-box {
+            display: inline-block;
+            background-color: #e8f5e9;
+            color: #2e7d32;
+            padding: 5px 12px;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 14px;
+            border: 1px solid #c8e6c9;
+        }
+        .highlight {
+            background-color: #ffeaa7;
+            padding: 0 2px;
+            border-radius: 2px;
+        }
+        #noResults {
+            text-align: center;
+            color: #e74c3c;
+            display: none;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>金工实习 在线题库搜索</h1>
+    
+    <div class="meta-info" id="metaInfo">正在加载题库数据...</div>
+
+    <div class="search-container">
+        <input type="text" id="searchInput" placeholder="输入题目关键字进行搜索..." autocomplete="off">
+    </div>
+
+    <div id="resultsContainer"></div>
+    <div id="noResults">没有找到匹配的题目</div>
+
+    <script>
+        let questionBank = [];
+
+        // 获取并加载JSON数据
+        fetch('./online_learning_questions.json')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('网络响应失败: ' + response.status);
+                }
+                return response.json();
+            })
+            .then(data => {
+                questionBank = data.questions;
+                document.getElementById('metaInfo').innerText = `加载成功！共包含 ${data.meta.total_questions || questionBank.length} 道题目`;
+                renderResults(questionBank); // 默认显示所有或部分
+            })
+            .catch(error => {
+                document.getElementById('metaInfo').innerText = '加载题库失败，请确保您在服务器环境下运行或检查JSON文件。';
+                console.error('Error fetching questions:', error);
+            });
+
+        const searchInput = document.getElementById('searchInput');
+        const resultsContainer = document.getElementById('resultsContainer');
+        const noResults = document.getElementById('noResults');
+
+        // 高亮关键词
+        function highlightKeyword(text, keyword) {
+            if (!keyword) return text;
+            const regex = new RegExp(`(${keyword})`, 'gi');
+            return text.replace(regex, '<span class="highlight">$1</span>');
+        }
+
+        // 渲染结果
+        function renderResults(questions, keyword = '') {
+            resultsContainer.innerHTML = '';
+            
+            if (questions.length === 0) {
+                noResults.style.display = 'block';
+                return;
+            } else {
+                noResults.style.display = 'none';
+            }
+
+            // 限制最多显示100条，避免卡顿
+            const displayLimit = 100;
+            const displayQuestions = questions.slice(0, displayLimit);
+
+            displayQuestions.forEach(q => {
+                const card = document.createElement('div');
+                card.className = 'question-card';
+
+                // 处理题目文本
+                const stemHtml = highlightKeyword(`${q.question_no}. ${q.stem}`, keyword);
+                
+                // 处理选项
+                let optionsHtml = '<ul class="options-list">';
+                if (q.options) {
+                    for (const [key, value] of Object.entries(q.options)) {
+                        const optText = highlightKeyword(`${key}: ${value}`, keyword);
+                        optionsHtml += `<li>${optText}</li>`;
+                    }
+                }
+                optionsHtml += '</ul>';
+
+                // 处理答案
+                const answerHtml = `<div class="answer-box">正确答案：${q.answer || '未知'}</div>`;
+
+                card.innerHTML = `
+                    <div class="question-stem">${stemHtml}</div>
+                    ${optionsHtml}
+                    ${answerHtml}
+                `;
+                resultsContainer.appendChild(card);
+            });
+
+            if (questions.length > displayLimit) {
+                const tips = document.createElement('div');
+                tips.style.textAlign = 'center';
+                tips.style.color = '#7f8c8d';
+                tips.style.marginTop = '15px';
+                tips.innerText = `（仅显示前 ${displayLimit} 条结果，请输入更详细的关键字进行精确搜索）`;
+                resultsContainer.appendChild(tips);
+            }
+        }
+
+        // 监听搜索输入框
+        searchInput.addEventListener('input', function(e) {
+            const keyword = e.target.value.trim();
+            
+            if (!keyword) {
+                renderResults(questionBank, '');
+                return;
+            }
+
+            const lowerKeyword = keyword.toLowerCase();
+            const filtered = questionBank.filter(q => {
+                // 搜索题干
+                if (q.stem && q.stem.toLowerCase().includes(lowerKeyword)) return true;
+                // 搜索选项
+                if (q.options) {
+                    for (const val of Object.values(q.options)) {
+                        if (val.toLowerCase().includes(lowerKeyword)) return true;
+                    }
+                }
+                return false;
+            });
+
+            renderResults(filtered, keyword);
+        });
+    </script>
+</body>
+</html>

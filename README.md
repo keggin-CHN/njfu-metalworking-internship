@@ -1,5 +1,13 @@
 # 金工实习脚本使用方法
 
+## 🌐 在线题库搜索功能
+本项目提供了一个基于 Web 的在线题库搜索页面，你可以直接点击下方链接搜索和查找题目答案：
+👉 **[点击这里访问在线题库搜索页面](https://keggin-chn.github.io/njfu-metalworking-internship/)**
+
+*(如果网页打不开，请在 GitHub 仓库中进入 `Settings` -> `Pages`，将 Branch 设置为 `main` 的 `/ (root)` 目录并保存开启)*
+
+---
+
 ## ⚠️ 警示
 本项目代码仅供测试与学习交流使用，禁止用于任何违规、破坏性或未授权用途；使用者需自行承担相应责任。
 
@@ -20,11 +28,4 @@ python auto_exam.py
 
 ## 注意：
 需要先完成线上学习中的5个视频才可以进入正式考试。单个账号最多参与10次考试。
-
-## 在线题库搜索功能 (GitHub Pages)
-本项目已经添加了一个基于 Web 的在线题库搜索页面，你可以通过访问仓库对应的 GitHub Pages 链接来直接搜索和查找题目答案。
-- **页面文件**：`index.html` 被包含在仓库中。
-- **开启方式**：
-  在 GitHub 仓库中，进入 `Settings` -> `Pages`，将 `Source` 设置为 `Deploy from a branch`，Branch 选择 `main` (或 `master`) 的 `/ (root)` 目录，并点击 Save。
-  稍等几分钟后，直接访问 GitHub 为你生成的域名即可轻松搜索题库。
 
